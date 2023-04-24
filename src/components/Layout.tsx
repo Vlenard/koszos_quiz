@@ -1,5 +1,5 @@
 import { Component, For, createContext } from "solid-js";
-import { getCloudData } from "./Cloud";
+import { getGame } from "./Game";
 
 type LayoutContext = {
 
@@ -9,23 +9,20 @@ const Context = createContext<LayoutContext>();
 
 const Layout: Component = () => {
 
-    const { quizList, setQuizInfo } = getCloudData();
+    const { signIn, player, signOut } = getGame();
 
     return (
-        <Context.Provider value={{}}>
-            {!quizList.loading && (
-                <div class="flex flex-col">
-                    <For each={quizList()}>
-                        {quiz => (
-                            <div class="my-5">
-                                <hr />
-                                <h2>{quiz.name}</h2>
-                                <p>{quiz.des}</p>
-                                <button onClick={() => setQuizInfo(quiz)}>Play</button>
-                                <hr />
-                            </div>
-                        )}
-                    </For>
+        <Context.Provider value={{
+
+        }}>
+            {player.name ? (
+                <div>
+                    <p>{player.name}</p>
+                    <button onClick={() => signOut()}>Sign out</button>
+                </div>
+            ) : (
+                <div>
+                    <button onClick={() => signIn("Jenő")}>Sign in</button>
                 </div>
             )}
         </Context.Provider>
