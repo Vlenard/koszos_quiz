@@ -1,32 +1,36 @@
-import { Component, For, createContext } from "solid-js";
-import { getGame } from "./Game";
+import { Component, JSX, Match, Setter, Switch, createContext, createSignal, useContext } from "solid-js";
+import SignIn from "./layouts/SignIn";
+import { View } from "./layouts/View";
+import MainMenu from "./layouts/MainMenu";
+import MacOSTitlebar from "./Titlebars/MacOSTitlebar";
 
 type LayoutContext = {
-
+    setContent: Setter<View>
 };
 
-const Context = createContext<LayoutContext>();
+const layoutContext = createContext<LayoutContext>();
 
 const Layout: Component = () => {
 
-    const { signIn, player, signOut } = getGame();
+    const [content, setContent] = createSignal<View>(View.SignIn);
 
     return (
-        <Context.Provider value={{
-
+        <layoutContext.Provider value={{
+            setContent
         }}>
-            {player.name ? (
-                <div>
-                    <p>{player.name}</p>
-                    <button onClick={() => signOut()}>Sign out</button>
-                </div>
-            ) : (
-                <div>
-                    <button onClick={() => signIn("Jenő")}>Sign in</button>
-                </div>
-            )}
-        </Context.Provider>
+            {true /* if mac*/ ? <MacOSTitlebar /> : null}
+            <Switch>
+                <Match when={content() === View.SignIn}>
+                    <SignIn />
+                </Match>
+
+                <Match when={content() === View.MainMenu}>
+                    <MainMenu />
+                </Match>
+            </Switch>
+        </layoutContext.Provider>
     );
 };
 
+export const getLayout = () => useContext(layoutContext) as LayoutContext;
 export default Layout;

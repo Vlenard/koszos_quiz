@@ -1,49 +1,42 @@
 import { ParentComponent, Resource, Setter, createContext, createEffect, createResource, createSignal, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
-import { Quiz, QuizInfo, QuizList } from "../game/types/QuizTypes";
-import { Game } from "../game/types/Game";
+import { Quiz, QuizInfo, QuizList } from "../game/types/QuizData";
+import { GameData } from "../game/types/GameData";
 import { Player } from "../game/types/Player";
 import { signInIntoApp, signOutFromApp } from "../game/GameManager"
 
 
 //#region types
 type GameContext = {
-    signIn: (name: string) => void;
-    signOut: () => void;
+    signIn: (name: string) => Promise<Player>;
+    signOut: () => Promise<void>;
     player: Player;
 };
 //#endregion
 
 //#region Context and fetch methods
-const Context = createContext<GameContext>();
+const gameContext = createContext<GameContext>();
 //#endregion
 
 //#region Component
 /**
  * Generates a context to share cloud functions for sub components
  */
-const GameComponent: ParentComponent = (props) => {
-
-    const [quizList, setQuizList] = createStore<QuizList>([]);
-    const [game, setGame] = createStore<Game>({} as Game);
+const Cloud: ParentComponent = (props) => {
+    const [gameData, setGameData] = createStore<GameData>({} as GameData);
     const [player, setPlayer] = createStore<Player>({} as Player);
     const [players, setPlayers] = createStore<string[]>([]);
 
-    const signIn = (name: string) => {
-        signInIntoApp(name).then(player => {
-            if(player){
-                setPlayer(player);
-            }
-        });
+    //#region game manager methods
+    const signIn = async (name: string): Promise<Player> => {
+        const signedInPlayer: Player = await signInIntoApp(name) as Player;
+        setPlayer(signedInPlayer);
+        return signedInPlayer;
     };
 
-    const signOut = (): void => {
-        signOutFromApp().then(() => {
-            setPlayer({
-                name: undefined,
-                score: undefined
-            });
-        });
+    const signOut = async (): Promise<void> => {
+        await signOutFromApp();
+        setPlayer({name: undefined, score: undefined});
     };
 
     const join = (): void => {
@@ -57,18 +50,19 @@ const GameComponent: ParentComponent = (props) => {
     const start = (): void => {
 
     };
+    //#endregion
 
     return (
-        <Context.Provider value={{
+        <gameContext.Provider value={{
             signIn,
             signOut,
             player
         }}>
             {props.children}
-        </Context.Provider>
+        </gameContext.Provider>
     );
 };
 //#endregion
 
-export const getGame = () => useContext(Context) as GameContext;
-export default GameComponent;
+export const getGame = () => useContext(gameContext) as GameContext;
+export default Cloud;

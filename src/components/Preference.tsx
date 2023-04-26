@@ -7,6 +7,7 @@ type PreferenceContext = {
 const Context = createContext<PreferenceContext>();
 
 const Preference: ParentComponent = (props) => {
+
     return (
         <Context.Provider value={{}}>
             {props.children}

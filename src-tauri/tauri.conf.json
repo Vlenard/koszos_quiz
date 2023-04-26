@@ -43,6 +43,7 @@
     },
     "windows": [
       {
+        "decorations": true,
         "center": true,
         "fullscreen": false,
         "resizable": true,
@@ -50,7 +51,8 @@
         "width": 1280,
         "height": 720,
         "minWidth": 800,
-        "minHeight": 720
+        "minHeight": 720,
+        "titleBarStyle": "Overlay"
       }
     ]
   }
