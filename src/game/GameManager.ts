@@ -1,9 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, getDoc, DocumentReference, addDoc, setDoc, doc, DocumentData, deleteDoc, CollectionReference, QuerySnapshot } from "firebase/firestore";
-import { User, UserCredential, deleteUser, getAuth, onAuthStateChanged, signInAnonymously, signOut } from "firebase/auth";
+import { getFirestore, CollectionReference, collection, getDocs, DocumentReference, doc, setDoc, deleteDoc, onSnapshot, DocumentSnapshot } from "firebase/firestore";
+import { Unsubscribe, UserCredential, deleteUser, getAuth, signInAnonymously } from "firebase/auth";
+import { PlayerData } from "./types/PlayerData";
 import { GameData } from "./types/GameData";
-import { QuizInfo, QuizList } from "./types/QuizData";
-import { Player } from "./types/Player";
+import { QuizList } from "./types/QuizData";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBiupN7TDtDoYptirlRlzH2AQpIPdjCIrI",
@@ -20,15 +20,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth();
+const quizListRef: CollectionReference = collection(db, "quizList");
+const playersRef: CollectionReference = collection(db, "players");
 
-// variables - refs
-let game: GameData;
-let playerRef: DocumentReference;
-let quizListRef: CollectionReference = collection(db, "quizList");
-//#endregion
-
+/*
 //#region sign in & sign out
-export const signInIntoApp = async (name: string): Promise<Player | undefined> => {
+const signInIntoApp = async (name: string): Promise<Player | undefined> => {
 
     const player: UserCredential = await signInAnonymously(auth);
 
@@ -46,7 +43,7 @@ export const signInIntoApp = async (name: string): Promise<Player | undefined> =
 
     return undefined;
 };
-export const signOutFromApp = async (): Promise<void> => {
+const signOutFromApp = async (): Promise<void> => {
     await deleteDoc(playerRef);
     if(auth.currentUser)
         await deleteUser(auth.currentUser);
@@ -54,14 +51,14 @@ export const signOutFromApp = async (): Promise<void> => {
 //#endregion
 
 //#region game action
-export const createGame = async (info: QuizInfo): Promise<GameData | undefined> => {
+const createGame = async (info: QuizInfo): Promise<GameData | undefined> => {
     if(!info) return undefined;
 
 };
 //#endregion
 
 //#region quiz action
-export const quizListFetcher = async (): Promise<QuizList> => {
+const quizListFetcher = async (): Promise<QuizList> => {
     const docSnap: QuerySnapshot<DocumentData> = await getDocs(quizListRef);
 
     if(!docSnap.empty)
@@ -70,3 +67,66 @@ export const quizListFetcher = async (): Promise<QuizList> => {
     return [];
 };
 //#endregion
+*/
+
+let localPlayer: PlayerData;
+let game: GameData;
+let gameRef: DocumentReference;
+let gameUnSub: Unsubscribe;
+let quizList: QuizList;
+
+const signIn = async (name: string): Promise<PlayerData | undefined> => {
+    const player: UserCredential = await signInAnonymously(auth);
+
+    if(player){
+        localPlayer = {name, uid: player.user.uid};
+        return localPlayer;
+    }
+    
+    return undefined;
+};
+
+const signOut = async (): Promise<boolean> => {
+    if(auth.currentUser){
+        await deleteUser(auth.currentUser);
+        return true;
+    }
+    return false;
+}
+
+const getQuizList = async (): Promise<QuizList> => {
+    const querySnapshot = await getDocs(quizListRef);
+
+    if(!querySnapshot.empty)
+        quizList = querySnapshot.docs.map(doc => doc.data()) as QuizList;
+    
+    return quizList;
+};
+
+const createGame = async (data: GameData, event: (data: GameData, id: string) => void): Promise<boolean> => {
+    game = data;
+    gameRef = doc(collection(db, "games"));
+    await setDoc(gameRef, game);
+
+    gameUnSub = onSnapshot(gameRef, doc => {
+       if(doc.exists())
+            event(doc.data(), doc.id);
+    });
+
+    return true;
+};
+
+const exitGame = async (): Promise<void> => {
+    game = {};
+    gameUnSub();
+    await deleteDoc(gameRef);
+    gameRef = {} as DocumentReference;
+};
+
+export default {
+    signIn,
+    signOut,
+    getQuizList,
+    createGame,
+    exitGame
+};

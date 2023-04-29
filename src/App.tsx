@@ -1,14 +1,14 @@
 import { Component } from "solid-js";
 import Preference from "./components/Preference";
-import Cloud from "./components/Cloud";
+import Game from "./components/Game";
 import Layout from "./components/Layout";
 
 const App: Component = () => {
   return (
     <Preference>
-      <Cloud>
+      <Game>
         <Layout />
-      </Cloud>
+      </Game>
     </Preference>
   );
 };

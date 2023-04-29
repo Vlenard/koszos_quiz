@@ -1,10 +1,13 @@
 import { DocumentReference } from "firebase/firestore";
 import { QuizInfo } from "./QuizData";
-import { Player } from "./Player";
+import { PlayerData } from "./PlayerData";
 
 export type GameData = {
-    quizInfo: QuizInfo;
-    players: Array<DocumentReference<Player>>;
-    turn: number;//-1 in menu
-    selected: number;
+    quizInfo?: QuizInfo;
+    host?: PlayerData;
+    players?: Array<PlayerData>;
+    scores?: Array<number>;
+    turn?: number;//-1 in menu
+    selected?: number;
+    time?: number;
 };

@@ -1,20 +1,20 @@
 import { Component, createSignal } from "solid-js";
-import { getGame } from "../Cloud";
-import { getLayout } from "../Layout";
-import { View } from "./View";
+import { getGame } from "../../Game";
+import { getLayout } from "../../Layout";
+import { View } from "../View";
 
 const SignIn: Component = () => {
 
     let inputRef: any;
     const [messsage, setMessage] = createSignal<string>("");
     const { signIn } = getGame();
-    const { setContent } = getLayout();
+    const { setView } = getLayout();
 
     const onClick = (): void => {
         const name: string = (inputRef as HTMLInputElement).value;
         if (name !== "") { 
             setMessage("loading...");
-            signIn(name).then(player => setContent(View.MainMenu)); 
+            signIn(name).then(player => setView(View.MainMenu)); 
         } else {
             setMessage("Name is required");
         }
