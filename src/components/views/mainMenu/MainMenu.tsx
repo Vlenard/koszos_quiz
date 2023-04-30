@@ -1,4 +1,4 @@
-import { Component, For, createResource } from "solid-js";
+import { Component, For, Match, Switch, createResource, createSignal } from "solid-js";
 import { getGame } from "../../Game";
 import { getLayout } from "../../Layout";
 import { View, ViewContainer } from "../View";
@@ -6,20 +6,34 @@ import QuizContainer from "./QuizContainer";
 import BasicButton from "../../buttons/BasicButton";
 import { QuizList } from "../../../game/types/QuizData";
 import GameManager from "../../../game/GameManager";
+import Host from "./subViews/Host";
+import Join from "./subViews/Join";
+
+enum MainMenuSubView {
+    Host,
+    Join,
+    Create
+}
 
 const MainMenu: Component = () => {
 
     const { setView } = getLayout();
     const { signOut, localPlayer } = getGame();
-    const [ quizList, modifyQuizList ]= createResource<QuizList>(GameManager.getQuizList);
+    const [subView, setSubView] = createSignal<MainMenuSubView>(MainMenuSubView.Host);
 
     const signOutFromApp = async (): Promise<void> => {
-        if(await signOut())
+        if (await signOut())
             setView(View.SignIn);
     };
 
     const openSettings = () => {
         setView(View.Settings, true);
+    };
+
+    const changeSubView = (nsview: MainMenuSubView): void => {
+        if(nsview !== subView()){
+            setSubView(nsview);
+        }
     };
 
     return (
@@ -35,16 +49,22 @@ const MainMenu: Component = () => {
                 <BasicButton class="ml-2" onClick={signOutFromApp}>Sign out</BasicButton>
             </div>
             <hr />
-            <div class="flex-1 relative">
-                <div class="absolute w-full h-full flex flex-col items-center overflow-y-scroll flex-wrap">
-                    {!quizList.loading && (
-                        <For each={quizList()}>
-                            {quiz => (
-                                <QuizContainer {...quiz}/>
-                            )}
-                        </For>
-                    )}
-                </div>
+            <div class="flex justify-center p-2">
+                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Host)}>Host</BasicButton>
+                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Join)}>Join</BasicButton>
+                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Create)}>Create</BasicButton>
+            </div>
+            <hr />
+            <div class="flex flex-1 relative">
+                <Switch>
+                    <Match when={subView() === MainMenuSubView.Host}>
+                        <Host />
+                    </Match>
+
+                    <Match when={subView() === MainMenuSubView.Join}>
+                        <Join />
+                    </Match>
+                </Switch>
             </div>
         </ViewContainer>
     );

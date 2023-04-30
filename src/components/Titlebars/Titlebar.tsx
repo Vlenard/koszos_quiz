@@ -8,11 +8,11 @@ type TitlebarProps = {
 
 const Titlebar: ParentComponent<TitlebarProps> = (props) => {
 
-    const { signOut, game, exitGame } = getGame();
+    const { signOut, game, exitGame, localPlayer } = getGame();
 
     appWindow.onCloseRequested(() => {
         if(game.data){
-            exitGame().then(() => {
+            exitGame(localPlayer.uid === game.data.host?.uid).then(() => {
                 signOut();
             });
         }else{

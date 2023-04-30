@@ -15,7 +15,8 @@ type GameContext = {
     };
     localPlayer: PlayerData;
     createGame: (info: QuizInfo) => Promise<void>;
-    exitGame: () => Promise<void>;
+    exitGame: (destroy?: boolean) => Promise<void>;
+    joinGame: (id: string) => Promise<void>;
 };
 //#endregion
 
@@ -51,15 +52,25 @@ const Game: ParentComponent = (props) => {
         return await GameManager.signOut();
     };
 
+    const joinGame = async (id: string): Promise<void> => {
+        const data: GameData = await GameManager.joinGame(id, onGameDataChanged);
+        if(data.host)
+            setGame({
+                data: data,
+                id: id
+            });
+    };
+
     const createGame = async (info: QuizInfo): Promise<void> => {
         const data: GameData = {...game.data};
         data.quizInfo = info;
         data.host = localPlayer;
+        data.state = 0;
         await GameManager.createGame(data, onGameDataChanged);
     };
 
-    const exitGame = async (): Promise<void> => {
-        await GameManager.exitGame();
+    const exitGame = async (destroy?: boolean): Promise<void> => {
+        await GameManager.exitGame(destroy);
         setGame({});
     };
 
@@ -70,7 +81,8 @@ const Game: ParentComponent = (props) => {
             game,
             localPlayer,
             createGame,
-            exitGame
+            exitGame,
+            joinGame
         }}>
             {props.children}
         </gameContext.Provider>

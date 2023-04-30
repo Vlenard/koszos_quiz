@@ -7,7 +7,8 @@ export type GameData = {
     host?: PlayerData;
     players?: Array<PlayerData>;
     scores?: Array<number>;
-    turn?: number;//-1 in menu
+    turn?: number; 
+    state?: number;//0 menu | 1 game | 2 end | 3 host exit
     selected?: number;
     time?: number;
 };

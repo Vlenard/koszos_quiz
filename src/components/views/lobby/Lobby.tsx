@@ -10,7 +10,7 @@ const Lobby: Component = () => {
     const { back } = getLayout();
 
     const exit = (): void => {
-        exitGame().then(() => {
+        exitGame(localPlayer.uid === game.data?.host?.uid).then(() => {
             back()
         });
     };
@@ -26,13 +26,16 @@ const Lobby: Component = () => {
             </div>
             <hr />
             <div class="flex flex-1">
-                <div class="flex flex-col flex-1">
-                    <p>{game.id}</p>
+                <div class="flex flex-col flex-1 p-2">
+                    <p>Game Id: <span class="select-text">{game.id}</span></p>
                 </div>
 
-                <div class="flex-none w-28">
+                <div class="flex-none w-40 text-center">
+                    <span>{game.data?.host?.name}(host)</span>
+                    <hr />
+                    <span>Other players</span>
+                    <hr />
                     <ul>
-                        <li>{localPlayer.name} (you)</li>
                         <For each={game.data?.players} >
                             {player => (
                                 <li>
