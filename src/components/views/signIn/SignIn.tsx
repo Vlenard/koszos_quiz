@@ -7,14 +7,14 @@ const SignIn: Component = () => {
 
     let inputRef: any;
     const [messsage, setMessage] = createSignal<string>("");
-    const { signIn } = getGame();
+    const { auth } = getGame();
     const { setView } = getLayout();
 
     const onClick = (): void => {
         const name: string = (inputRef as HTMLInputElement).value;
         if (name !== "") { 
             setMessage("loading...");
-            signIn(name).then(player => setView(View.MainMenu)); 
+            auth.signIn(name).then(player => setView(View.MainMenu)); 
         } else {
             setMessage("Name is required");
         }

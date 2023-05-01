@@ -6,11 +6,11 @@ import { getLayout } from "../../Layout";
 
 const Lobby: Component = () => {
    
-    const { game, localPlayer, exitGame } = getGame();
+    const { game, localPlayer, connection } = getGame();
     const { back } = getLayout();
 
     const exit = (): void => {
-        exitGame(localPlayer.uid === game.data?.host?.uid).then(() => {
+        connection.exit(localPlayer.uid === game.data?.host?.uid).then(() => {
             back()
         });
     };

@@ -7,11 +7,11 @@ import { View } from "../View";
 
 const QuizContainer: Component<QuizInfo> = (props) => {
 
-    const { createGame } = getGame();
+    const { connection } = getGame();
     const { setView } = getLayout();
 
     const openLobby = (): void => {
-        createGame(props).then(() => {
+        connection.create(props).then(() => {
             setView(View.Lobby, true);
         });
     };

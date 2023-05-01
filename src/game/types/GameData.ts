@@ -1,6 +1,11 @@
-import { DocumentReference } from "firebase/firestore";
 import { QuizInfo } from "./QuizData";
 import { PlayerData } from "./PlayerData";
+import Error from "../errors/Error";
+
+export type RequestedGameData<T> = {
+    data?: GameData;
+    err?: Error<T>;
+};
 
 export type GameData = {
     quizInfo?: QuizInfo;

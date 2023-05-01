@@ -2,8 +2,11 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, CollectionReference, collection, getDocs, DocumentReference, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "firebase/firestore";
 import { Unsubscribe, UserCredential, deleteUser, getAuth, signInAnonymously } from "firebase/auth";
 import { PlayerData } from "./types/PlayerData";
-import { GameData } from "./types/GameData";
+import { GameData, RequestedGameData } from "./types/GameData";
 import { QuizList } from "./types/QuizData";
+import { ConnectionError } from "./errors/ConnectionError";
+import Error from "./errors/Error";
+import UpdateEvent from "./types/UpdateEvent";
 
 
 //#region Initialize Firebase
@@ -54,7 +57,7 @@ const signOut = async (): Promise<boolean> => {
 }
 //#endregion
 
-const getQuizList = async (): Promise<QuizList> => {
+const getQuizInfos = async (): Promise<QuizList> => {
     const querySnapshot = await getDocs(quizListRef);
 
     if(!querySnapshot.empty)
@@ -64,46 +67,62 @@ const getQuizList = async (): Promise<QuizList> => {
 };
 
 //#region Game connection functions
-const joinGame = async (id: string, event: (data: GameData, id: string) => void): Promise<GameData> => {
+const joinGame = async (id: string, update: UpdateEvent): Promise<RequestedGameData<ConnectionError>> => {
     const gameDoc = await getDoc(doc(db, "games", id));
 
     if(gameDoc.exists()){
         gameRef = doc(db, "games", id);
         game = gameDoc.data() as GameData;
-        
+
         if(!game.players){
             game = {
                 ...game,
                 players: [localPlayer]
             };
             localPlayerIndex = 0;
-        }else{
+        }else if((game.quizInfo?.max as number) > game.players.length){
             game.players.push(localPlayer);
             localPlayerIndex = game.players.length - 2;
+        }else{
+            return {
+                err: new Error(ConnectionError.Full)
+            };
         }
+
         await setDoc(gameRef, game);
         
         gameUnSub = onSnapshot(gameRef, doc => {
             if(doc.exists()){
                 game = doc.data();
-                event(game, id);
+                update({data: game}, id);
             }
         });
 
-        return game;
+        return {
+            data: game
+        };
     }else{
-        return {} as GameData;
+        return {
+            err: new Error(ConnectionError.NotFound)
+        };
     }
 };
 
-const createGame = async (data: GameData, event: (data: GameData, id: string) => void): Promise<void> => {
+const createGame = async (data: GameData, update: UpdateEvent): Promise<void> => {
     game = data;
     gameRef = doc(collection(db, "games"));
     await setDoc(gameRef, game);
 
     gameUnSub = onSnapshot(gameRef, doc => {
-       if(doc.exists())
-            event(doc.data(), doc.id);
+        if(doc.exists())
+            update({
+                data: doc.data()
+            }, doc.id);
+        else{
+            update({
+                err: new Error(ConnectionError.NotFound),
+            }, doc.id);
+        }
     });
 };
 
@@ -122,10 +141,16 @@ const exitGame = async (destroy?: boolean): Promise<void> => {
 //#endregion
 
 export default {
-    signIn,
-    signOut,
-    getQuizList,
-    createGame,
-    exitGame,
-    joinGame
+    auth: {
+        signIn,
+        signOut,
+    },
+    quiz: {
+        getInfos: getQuizInfos    
+    },
+    game: {
+        create: createGame,
+        exit: exitGame,
+        join: joinGame
+    }
 };

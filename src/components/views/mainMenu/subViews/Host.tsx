@@ -5,7 +5,7 @@ import GameManager from "../../../../game/GameManager";
 
 const Host: Component = () => {
 
-    const [quizList, modifyQuizList] = createResource<QuizList>(GameManager.getQuizList);
+    const [quizList, modifyQuizList] = createResource<QuizList>(GameManager.quiz.getInfos);
 
     return (
         <div class="absolute w-full h-full flex flex-col items-center overflow-y-scroll flex-wrap">

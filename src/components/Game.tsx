@@ -1,22 +1,29 @@
-import { Accessor, ParentComponent, createContext, createSignal, useContext } from "solid-js";
+import {  ParentComponent, createContext, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { GameData } from "../game/types/GameData";
 import GameManager from "../game/GameManager";
 import { QuizInfo } from "../game/types/QuizData";
 import { PlayerData } from "../game/types/PlayerData";
+import Error from "../game/errors/Error";
+import UpdateEvent from "../game/types/UpdateEvent";
 
 //#region types
 type GameContext = {
-    signIn: (hostname: string) => Promise<void>;
-    signOut: () => Promise<boolean>;
+    auth: {
+        signIn: (hostname: string) => Promise<void>;
+        signOut: () => Promise<boolean>;
+    };
     game: {
         data?: GameData;
         id?: string;
+        err?: Error<any>;
+    };
+    connection: {
+        create: (info: QuizInfo) => Promise<void>;
+        exit: (destroy?: boolean) => Promise<void>;
+        join: (id: string) => Promise<void>;
     };
     localPlayer: PlayerData;
-    createGame: (info: QuizInfo) => Promise<void>;
-    exitGame: (destroy?: boolean) => Promise<void>;
-    joinGame: (id: string) => Promise<void>;
 };
 //#endregion
 
@@ -33,56 +40,61 @@ const Game: ParentComponent = (props) => {
     const [game, setGame] = createStore<{
         data?: GameData;
         id?: string;
+        err?: Error<any>;
     }>({});
     const [localPlayer, setLocalPlayer] = createStore<PlayerData>({} as PlayerData);
 
-    const onGameDataChanged = (ndata: GameData, id: string): void => {
-        setGame({
-            data: ndata,
-            id: id
-        });
-    };
-
-    const signIn = async (name: string): Promise<void> => {
-        const player = await GameManager.signIn(name);
-        setLocalPlayer(player as PlayerData);
-    };
-
-    const signOut = async (): Promise<boolean> => {
-        return await GameManager.signOut();
-    };
-
-    const joinGame = async (id: string): Promise<void> => {
-        const data: GameData = await GameManager.joinGame(id, onGameDataChanged);
-        if(data.host)
+    const onGameDataChanged: UpdateEvent = (update, id): void => {
+        if(update.err){
             setGame({
-                data: data,
+                err: update.err
+            });
+        }else{
+            setGame({
+                data: update.data,
                 id: id
             });
+        }
     };
 
-    const createGame = async (info: QuizInfo): Promise<void> => {
-        const data: GameData = {...game.data};
-        data.quizInfo = info;
-        data.host = localPlayer;
-        data.state = 0;
-        await GameManager.createGame(data, onGameDataChanged);
+    const auth = {
+        signIn: async (name: string): Promise<void> => {
+            const player = await GameManager.auth.signIn(name);
+            setLocalPlayer(player as PlayerData);
+        },
+    
+        signOut: async (): Promise<boolean> => {
+            return await GameManager.auth.signOut();
+        }
     };
 
-    const exitGame = async (destroy?: boolean): Promise<void> => {
-        await GameManager.exitGame(destroy);
-        setGame({});
+    const connection = {
+
+        exit: async (destroy?: boolean): Promise<void> => {
+            await GameManager.game.exit(destroy);
+            setGame({});
+        },
+
+        create: async (info: QuizInfo): Promise<void> => {
+            const data: GameData = {...game.data};
+            data.quizInfo = info;
+            data.host = localPlayer;
+            data.state = 0;
+            await GameManager.game.create(data, onGameDataChanged);
+        },
+
+        join: async (id: string): Promise<void> => {
+            const joinResult = await GameManager.game.join(id, onGameDataChanged);
+            onGameDataChanged(joinResult, id); 
+        }
     };
 
     return (
         <gameContext.Provider value={{
-            signIn,
-            signOut,
+            auth,
+            connection,
             game,
-            localPlayer,
-            createGame,
-            exitGame,
-            joinGame
+            localPlayer
         }}>
             {props.children}
         </gameContext.Provider>
