@@ -10,7 +10,10 @@ const Join: Component = () => {
     const { connection, game } = getGame();
     const { setView } = getLayout();
 
-    const join = (): void => {
+    const join = (ev: MouseEvent): void => {
+
+        ev.preventDefault();
+
         const input: string = (inputRef as HTMLInputElement).value;
         if (input !== "") connection.join(input).then(() => {
             if (!game.err)
@@ -22,8 +25,10 @@ const Join: Component = () => {
         <div class="w-full h-max">
             <div class="flex w-full justify-center items-center p-2">
                 <span class="mr-2">Game Id:</span>
-                <input type="text" ref={inputRef} />
-                <BasicButton class="ml-2" onClick={join}>Join</BasicButton>
+                <form action="#">
+                    <input type="text" ref={inputRef} placeholder="knasue34z23blansc"/>
+                    <BasicButton type="submit" class="ml-2" onClick={join}>Join</BasicButton>
+                </form>
             </div>
 
             <div class="flex w-full justify-center p-2">

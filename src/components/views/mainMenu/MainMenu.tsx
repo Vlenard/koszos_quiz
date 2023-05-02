@@ -18,11 +18,11 @@ enum MainMenuSubView {
 const MainMenu: Component = () => {
 
     const { setView } = getLayout();
-    const { signOut, localPlayer } = getGame();
+    const { auth, game } = getGame();
     const [subView, setSubView] = createSignal<MainMenuSubView>(MainMenuSubView.Host);
 
     const signOutFromApp = async (): Promise<void> => {
-        if (await signOut())
+        if (await auth.signOut())
             setView(View.SignIn);
     };
 
@@ -44,7 +44,7 @@ const MainMenu: Component = () => {
             </div>
             <hr />
             <div class="flex p-2">
-                <span class="mr-2">{localPlayer.name}</span>
+                <span class="mr-2">{game.player?.name}</span>
                 |
                 <BasicButton class="ml-2" onClick={signOutFromApp}>Sign out</BasicButton>
             </div>

@@ -6,11 +6,11 @@ import { getLayout } from "../../Layout";
 
 const Lobby: Component = () => {
    
-    const { game, localPlayer, connection } = getGame();
+    const { game, connection } = getGame();
     const { back } = getLayout();
 
     const exit = (): void => {
-        connection.exit(localPlayer.uid === game.data?.host?.uid).then(() => {
+        connection.exit(game.player?.uid === game.data?.host?.uid).then(() => {
             back()
         });
     };
@@ -36,11 +36,11 @@ const Lobby: Component = () => {
                     <span>Other players</span>
                     <hr />
                     <ul>
-                        <For each={game.data?.players} >
+                        <For each={game.data?.players?.slice(1, game.data.players.length)/*Remove host, because host is always the first in players list*/} >
                             {player => (
                                 <li>
                                     <span class="mr-2">{player.name}</span>
-                                    {localPlayer.uid === game.data?.host?.uid ? 
+                                    {game.player?.uid === game.data?.host?.uid ? 
                                         <BasicButton>X</BasicButton> : null
                                     }
                                 </li>

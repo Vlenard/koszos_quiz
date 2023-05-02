@@ -8,16 +8,21 @@ type TitlebarProps = {
 
 const Titlebar: ParentComponent<TitlebarProps> = (props) => {
 
-    const { auth, game, connection, localPlayer } = getGame();
+    const { auth, game, connection } = getGame();
 
-    appWindow.onCloseRequested(async () => {
-        if(game.data) await connection.exit(localPlayer.uid === game.data.host?.uid);
-        auth.signOut();
+    appWindow.onCloseRequested(() => {
+        if (game.data) {
+            connection.exit(game.player?.uid === game.data.host?.uid).then(() => {
+                auth.signOut();
+            })
+        } else {
+            auth.signOut();
+        }
     });
 
     return (
-        <div 
-            data-tauri-drag-region 
+        <div
+            data-tauri-drag-region
             class={`w-full flex bg-white dark:bg-darkGrey transition-colors duration-300 select-none ${props.class}`}>
             {props.children}
         </div>
