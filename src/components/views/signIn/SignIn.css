@@ -1,0 +1,19 @@
+.profile{
+    background-size: 100%;
+}
+
+.profile.img-0{
+    background-image: url("../../../assets/dirty_dog_0.jpeg");
+}
+
+.profile.img-1{
+    background-image: url("../../../assets/dirty_dog_1.jpeg");
+}
+
+.profile.img-2{
+    background-image: url("../../../assets/dirty_dog_2.jpeg");
+}
+
+.profile.img-3{
+    background-image: url("../../../assets/dirty_dog_3.jpeg");
+}

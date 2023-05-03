@@ -1,11 +1,8 @@
-import { Component, For, Match, Switch, createResource, createSignal } from "solid-js";
+import { Component, Match, Switch, createSignal } from "solid-js";
 import { getGame } from "../../Game";
 import { getLayout } from "../../Layout";
 import { View, ViewContainer } from "../View";
-import QuizContainer from "./QuizContainer";
 import BasicButton from "../../buttons/BasicButton";
-import { QuizList } from "../../../game/types/QuizData";
-import GameManager from "../../../game/GameManager";
 import Host from "./subViews/Host";
 import Join from "./subViews/Join";
 
@@ -43,7 +40,7 @@ const MainMenu: Component = () => {
                 <BasicButton onClick={openSettings}>Settings</BasicButton>
             </div>
             <hr />
-            <div class="flex p-2">
+            <div class="flex items-center p-2">
                 <span class="mr-2">{game.player?.name}</span>
                 |
                 <BasicButton class="ml-2" onClick={signOutFromApp}>Sign out</BasicButton>

@@ -23,7 +23,7 @@ const Titlebar: ParentComponent<TitlebarProps> = (props) => {
     return (
         <div
             data-tauri-drag-region
-            class={`w-full flex bg-white dark:bg-darkGrey transition-colors duration-300 select-none ${props.class}`}>
+            class={`w-full flex bg-white dark:bg-darkGrey transition-colors duration-300 select-none z-[1000] ${props.class}`}>
             {props.children}
         </div>
     );

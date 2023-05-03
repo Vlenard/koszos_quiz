@@ -1,19 +1,41 @@
-import { Component, For } from "solid-js";
+import { Component, For, createEffect } from "solid-js";
 import { ViewContainer } from "../View";
 import BasicButton from "../../buttons/BasicButton";
 import { getGame } from "../../Game";
 import { getLayout } from "../../Layout";
+import { PlayerData } from "../../../game/types/PlayerData";
 
 const Lobby: Component = () => {
-   
-    const { game, connection } = getGame();
+
+    const { game, connection, auth } = getGame();
     const { back } = getLayout();
 
     const exit = (): void => {
-        connection.exit(game.player?.uid === game.data?.host?.uid).then(() => {
+        connection.exit(auth.isHost(game.player as PlayerData)).then(() => {
             back()
         });
     };
+
+    const onHostExit = (): void => {
+        if(!auth.isHost(game.player as PlayerData)){
+            connection.cleanup().then(() => {
+                back();
+            });
+        }
+    };
+
+    createEffect((): void => {
+        switch (game.data?.state) {
+            case 1://game
+
+                break;
+            case 3://host exit
+                onHostExit();
+                break;
+            default:
+                break;
+        }
+    });
 
     return (
         <ViewContainer>
@@ -40,7 +62,7 @@ const Lobby: Component = () => {
                             {player => (
                                 <li>
                                     <span class="mr-2">{player.name}</span>
-                                    {game.player?.uid === game.data?.host?.uid ? 
+                                    {auth.isHost(game.player as PlayerData) ?
                                         <BasicButton>X</BasicButton> : null
                                     }
                                 </li>

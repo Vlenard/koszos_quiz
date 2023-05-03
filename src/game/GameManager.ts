@@ -177,13 +177,23 @@ const createGame = async (data: GameData, update: UpdateEvent): Promise<void> =>
  * @param {boolean} destroy Recommended expression destroy Local player UID === Host player UID
  */
 const exitGame = async (destroy?: boolean): Promise<void> => {
-    gameUnSub();
     if (destroy) {
+        game.state = 3;
+        await setDoc(gameRef, game);
         await deleteDoc(gameRef);
     } else {
         game.players = game.players?.splice(localPlayerIndex, 1);
         await setDoc(gameRef, game);
     }
+    cleanupGame();
+};
+
+/**
+ * @author Varadi
+ * @description Deletes all firebase game variables
+ */
+const cleanupGame = async (): Promise<void> => {
+    gameUnSub();
     localPlayerIndex = -1;
     game = {};
     gameRef = {} as DocumentReference;
@@ -201,6 +211,7 @@ export default {
     game: {
         create: createGame,
         exit: exitGame,
-        join: joinGame
+        join: joinGame,
+        cleanup: cleanupGame
     }
 };

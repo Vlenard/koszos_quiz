@@ -13,7 +13,7 @@ export type GameData = {
     players?: Array<PlayerData>;
     scores?: Array<number>;
     turn?: number; 
-    state?: number;//0 menu | 1 game | 2 end | 3 host exit
+    state?: number;//0 lobby | 1 game | 2 end | 3 host exit
     selected?: number;
     time?: number;
 };

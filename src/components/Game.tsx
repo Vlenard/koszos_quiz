@@ -12,6 +12,7 @@ type GameContext = {
     auth: {
         signIn: (hostname: string) => Promise<void>;
         signOut: () => Promise<boolean>;
+        isHost: (player: PlayerData) => boolean;
     };
     game: {
         player?: PlayerData;
@@ -23,6 +24,7 @@ type GameContext = {
         create: (info: QuizInfo) => Promise<void>;
         exit: (destroy?: boolean) => Promise<void>;
         join: (id: string) => Promise<void>;
+        cleanup: () => Promise<void>;
     };
 };
 //#endregion
@@ -113,6 +115,10 @@ const Game: ParentComponent = (props) => {
             });
             
             return signOuted;
+        },
+
+        isHost: (player: PlayerData): boolean => {
+            return game.data?.host?.uid === player.uid;
         }
     };
 
@@ -148,6 +154,19 @@ const Game: ParentComponent = (props) => {
         join: async (id: string): Promise<void> => {
             const joinResult = await GameManager.game.join(id, onGameDataChanged);
             onGameDataChanged(joinResult, id); 
+        },
+
+        /**
+         * @author Varadi
+         * @description It can run when, for reasons beyond the control of the user, the game ends
+         */
+        cleanup: async (): Promise<void> => {
+            await GameManager.game.cleanup();
+            setGame({
+                data: undefined,
+                err: undefined,
+                id: undefined
+            });
         }
     };
 
