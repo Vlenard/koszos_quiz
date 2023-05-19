@@ -1,11 +1,8 @@
-import { Component, Match, Setter, Switch, createContext, createSignal, useContext } from "solid-js";
-import SignIn from "./views/signIn/SignIn";
-import { View } from "./views/View";
-import MainMenu from "./views/mainMenu/MainMenu";
-import MacOSTitlebar from "./Titlebars/MacOSTitlebar";
-import Lobby from "./views/lobby/Lobby";
-import Settings from "./views/settings/Settings";
+import { Component, Match, Switch, createContext, useContext } from "solid-js";
+import { View, ViewContainer } from "./views/View";
 import { createStore } from "solid-js/store";
+import MainMenu from "./views/mainMenu/MainMenu";
+import Game from "./views/game/Game";
 
 type LayoutContext = {
     setView: (view: View, savePrev?: boolean) => void;
@@ -19,19 +16,19 @@ const Layout: Component = () => {
     const [content, setContent] = createStore<{
         current: View;
         prev?: View;
-    }>({current: View.SignIn});
+    }>({ current: View.MainMenu });
 
     const setView = (view: View, savePrev?: boolean): void => {
-        if(savePrev)
-            setContent(prev => ({current: view, prev: prev.current}));
-        else 
-            setContent({current: view});
+        if (savePrev)
+            setContent(prev => ({ current: view, prev: prev.current }));
+        else
+            setContent({ current: view });
+
     };
 
     const back = (): void => {
-        if(content.prev){
-            setContent(prev => ({current: prev.prev}));
-        }
+        if (content.prev)
+            setView(content.prev);
     };
 
     return (
@@ -39,23 +36,13 @@ const Layout: Component = () => {
             setView,
             back
         }}>
-            {true /* if mac*/ ? <MacOSTitlebar /> : null}
-
             <Switch>
-                <Match when={content.current === View.SignIn}>
-                    <SignIn />
-                </Match>
-
                 <Match when={content.current === View.MainMenu}>
                     <MainMenu />
-                </Match>
+                </Match> 
 
-                <Match when={content.current === View.Lobby}>
-                    <Lobby />
-                </Match>
-                
-                <Match when={content.current === View.Settings}>
-                    <Settings />
+                <Match when={content.current === View.Game}>
+                    <Game />
                 </Match>
             </Switch>
         </layoutContext.Provider>

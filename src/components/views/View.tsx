@@ -8,9 +8,13 @@ export enum View{
     Settings
 };
 
-export const ViewContainer: ParentComponent = (props) => {
+type ViewContainerProps = {
+    class?: string
+};
+
+export const ViewContainer: ParentComponent<ViewContainerProps> = (props) => {
     return (
-        <div class="flex flex-1 flex-col">
+        <div class={`flex flex-1 flex-col bg-white dark:bg-darkGrey ${props.class}`}>
             {props.children}
         </div>
     );

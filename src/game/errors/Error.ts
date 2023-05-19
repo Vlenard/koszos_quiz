@@ -5,7 +5,7 @@ class Error<T>{
         this.error = error;
     }
 
-    public getErrorMessage(): T {
+    public getError(): T {
         return this.error;
     }
 };

@@ -1,0 +1,70 @@
+.custom-select.solid-select-container {
+    color: #000;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.custom-select .solid-select-control {
+    outline: 0;
+    border-radius: 999px;
+    border: 2px solid #ddd;
+    padding: 0.5rem 0.5rem;
+}
+
+.custom-select .solid-select-list{
+    border: 2px solid #ddd;
+    border-radius: .5rem;
+}
+
+.custom-select .solid-select-control:hover {
+    background-color: #ddd;
+}
+
+.custom-select .solid-select-placeholder {
+    color: #000;
+}
+
+.custom-select .solid-select-option{
+    margin: .5rem .5rem;
+    border-radius: 999px;
+}
+
+.custom-select .solid-select-option:hover {
+    background-color: #ddd;
+    color: #000;
+}
+
+.custom-select .solid-select-option[data-focused=true] {
+    background-color: #ddd;
+    color: #000;
+}
+
+:is(.dark .custom-select.solid-select-container){
+    color: #aaa;
+}
+
+:is(.dark .custom-select .solid-select-control){
+    border-color: #505050;
+}
+
+:is(.dark .custom-select .solid-select-list){
+    border-color: #505050;
+}
+
+:is(.dark .custom-select .solid-select-control):hover{
+    background-color: #505050;
+}
+
+:is(.dark .custom-select .solid-select-placeholder){
+    color: #aaa;
+}
+
+:is(.dark  .custom-select .solid-select-option):hover{
+    background-color: #505050;
+    color: #aaa;
+}
+
+:is(.dark .custom-select .solid-select-option[data-focused=true]){
+    background-color: #505050;
+    color: #aaa;
+}

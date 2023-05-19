@@ -200,6 +200,15 @@ const cleanupGame = async (): Promise<void> => {
 };
 //#endregion
 
+const kickPlayerFromGame = async (player: PlayerData): Promise<GameData> => {
+    
+    game.players = game.players?.filter(item => item.uid !== player.uid);
+
+    await setDoc(gameRef, game);
+
+    return game;
+};
+
 export default {
     auth: {
         signIn,
@@ -212,6 +221,7 @@ export default {
         create: createGame,
         exit: exitGame,
         join: joinGame,
-        cleanup: cleanupGame
+        cleanup: cleanupGame,
+        kickPlayer: kickPlayerFromGame
     }
 };

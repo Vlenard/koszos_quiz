@@ -1,11 +1,11 @@
 import { Component } from "solid-js";
 
-const Loading: Component = () => {
+const Game: Component = () => {
     return (
         <div>
-            Loading...
+
         </div>
     );
 };
 
-export default Loading;
+export default Game;

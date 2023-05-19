@@ -1,6 +1,7 @@
 import { ParentComponent, createSignal } from "solid-js";
 import { appWindow } from "@tauri-apps/api/window";
-import { getGame } from "../Game";
+import { getGame } from "../GameContext";
+import KoszosQuiz from "../../koszosQuiz/KoszosQuiz";
 
 type TitlebarProps = {
     class?: string;
@@ -8,22 +9,20 @@ type TitlebarProps = {
 
 const Titlebar: ParentComponent<TitlebarProps> = (props) => {
 
-    const { auth, game, connection } = getGame();
-
     appWindow.onCloseRequested(() => {
-        if (game.data) {
-            connection.exit(game.player?.uid === game.data.host?.uid).then(() => {
-                auth.signOut();
-            })
+        if (KoszosQuiz.game.inGame()) {
+            KoszosQuiz.game.exit().then(() => {
+                KoszosQuiz.auth.signOut();
+            });
         } else {
-            auth.signOut();
+            KoszosQuiz.auth.signOut();
         }
     });
 
     return (
         <div
             data-tauri-drag-region
-            class={`w-full flex bg-white dark:bg-darkGrey transition-colors duration-300 select-none z-[1000] ${props.class}`}>
+            class={`w-full flex bg-white dark:bg-darkGrey select-none z-[1000] ${props.class}`}>
             {props.children}
         </div>
     );

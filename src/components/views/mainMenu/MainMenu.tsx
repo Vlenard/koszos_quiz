@@ -1,68 +1,60 @@
-import { Component, Match, Switch, createSignal } from "solid-js";
-import { getGame } from "../../Game";
-import { getLayout } from "../../Layout";
-import { View, ViewContainer } from "../View";
+import { Component, Match, Show, Switch, createMemo, createSignal } from "solid-js";
+import { ViewContainer } from "../View";
+import Header from "../../headers/Header";
+import { getPlayer } from "../../player/Player";
+import IconButton from "../../buttons/IconButton";
+import { AiOutlineSwap } from 'solid-icons/ai'
+import { getPreference } from "../../preference/Preference";
+import SettingsButton from "../../buttons/SettingsButton";
 import BasicButton from "../../buttons/BasicButton";
-import Host from "./subViews/Host";
-import Join from "./subViews/Join";
+import HostView from "./sub/HostView";
+import JoinView from "./sub/JoinView";
 
-enum MainMenuSubView {
-    Host,
-    Join,
-    Create
-}
 
 const MainMenu: Component = () => {
 
-    const { setView } = getLayout();
-    const { auth, game } = getGame();
-    const [subView, setSubView] = createSignal<MainMenuSubView>(MainMenuSubView.Host);
-
-    const signOutFromApp = async (): Promise<void> => {
-        if (await auth.signOut())
-            setView(View.SignIn);
-    };
-
-    const openSettings = () => {
-        setView(View.Settings, true);
-    };
-
-    const changeSubView = (nsview: MainMenuSubView): void => {
-        if(nsview !== subView()){
-            setSubView(nsview);
-        }
-    };
+    const player = getPlayer();
+    const pref = getPreference();
+    const [subView, setSubView] = createSignal<"Join" | "Host" | "Creator">("Host");
 
     return (
         <ViewContainer>
-            <div class="flex justify-between p-2">
-                <h1 class="text-lg">Main menu</h1>
-                <BasicButton onClick={openSettings}>Settings</BasicButton>
-            </div>
-            <hr />
-            <div class="flex items-center p-2">
-                <span class="mr-2">{game.player?.name}</span>
-                |
-                <BasicButton class="ml-2" onClick={signOutFromApp}>Sign out</BasicButton>
-            </div>
-            <hr />
-            <div class="flex justify-center p-2">
-                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Host)}>Host</BasicButton>
-                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Join)}>Join</BasicButton>
-                <BasicButton class="mx-2" onClick={(): void => changeSubView(MainMenuSubView.Create)}>Create</BasicButton>
-            </div>
-            <hr />
-            <div class="flex flex-1 relative">
-                <Switch>
-                    <Match when={subView() === MainMenuSubView.Host}>
-                        <Host />
-                    </Match>
+            <Header.Bar>
+                <Header.Contents>
+                    <BasicButton onClick={() => setSubView("Host")} selected={subView() === "Host"} class="py-1 px-3">
+                        {pref.lang()["host"]/*Host*/}
+                    </BasicButton>
 
-                    <Match when={subView() === MainMenuSubView.Join}>
-                        <Join />
-                    </Match>
-                </Switch>
-            </div>
+                    <BasicButton onClick={() => setSubView("Join")} selected={subView() === "Join"} class="py-1 px-3">
+                        {pref.lang()["join"]/*Join*/}
+                    </BasicButton>
+
+                    <BasicButton onClick={() => setSubView("Creator")} selected={subView() === "Creator"} class="py-1 px-3">
+                        {pref.lang()["creator"]/*Create*/}
+                    </BasicButton>
+                </Header.Contents>
+
+                <Header.Contents>
+                    <IconButton onClick={player.signOut} class="px-2">
+                        <span>{player.name()}</span>
+                        <AiOutlineSwap size={20} />
+                    </IconButton>
+                    <SettingsButton />
+                </Header.Contents>
+            </Header.Bar>
+
+            <Show when={player.authed()}>
+                <div class="relative flex flex-1">
+                    <Switch>
+                        <Match when={subView() === "Host"}>
+                            <HostView />
+                        </Match>
+                        <Match when={subView() === "Join"}>
+                            <JoinView />
+                        </Match>
+                    </Switch>
+                </div>
+            </Show>
         </ViewContainer>
     );
 };

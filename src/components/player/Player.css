@@ -1,0 +1,9 @@
+.player-sign-in-exit-to, .player-sign-in-enter {
+  transform: scale(1.1);
+  opacity: 0;
+}
+
+.player-sign-in-enter-to{
+    transform: scale(1);
+    opacity: 1;
+}

@@ -11,7 +11,7 @@ const DefaultButton: ParentComponent<DefaultButtonProps> = (props) => {
         <button
             type={props.type} 
             onClick={props.onClick} 
-            class={`p-2 rounded-full bg-fblue hover:bg-hfblue text-white focus:outline-none focus:shadow-md transition-all duration-300 ${props.class}`}>
+            class={`p-2 rounded-full bg-fblue hover:bg-hfblue text-white focus:outline-0 focus:outline-none focus:shadow-light transition-all duration-300 ${props.class}`}>
             {props.children}
         </button>
     );

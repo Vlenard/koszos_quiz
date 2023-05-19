@@ -1,0 +1,8 @@
+.settings-menu-enter,
+.settings-menu-exit-to {
+  transform: translate(0, 0);
+  opacity: 0;
+}
+.settings-menu-enter-to {
+  transform: translate(-100%, 0);
+}
